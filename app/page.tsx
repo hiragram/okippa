@@ -1,94 +1,107 @@
-import Image from "next/image";
+import { getDb } from "@/lib/db";
+import Link from "next/link";
 import styles from "./page.module.css";
+import Image from "next/image";
 
-export default function Home() {
+// スペースの型定義
+interface Space {
+  id: number;
+  owner_id: number;
+  title: string;
+  description: string | null;
+  address: string;
+  size_sqm: number;
+  price_per_day: number;
+  available_from: string;
+  available_until: string | null;
+  amenities: string | null;
+  images: string | null;
+  owner_name: string;
+  created_at: string;
+  updated_at: string;
+}
+
+// このページは静的な内容を持たず、定期的に更新されるためキャッシュを無効化
+export const dynamic = 'force-dynamic';
+
+export default async function Home() {
+  // データベースからスペース情報を取得
+  const db = getDb();
+  const spaces = db.prepare(`
+    SELECT 
+      s.*,
+      o.username as owner_name
+    FROM spaces s
+    JOIN owners o ON s.owner_id = o.id
+    ORDER BY s.created_at DESC
+  `).all() as Space[];
+
   return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol>
-          <li>
-            Get started by editing <code>app/page.tsx</code>.
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
-
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-            className={styles.secondary}
-          >
-            Read our docs
-          </a>
+    <div className={styles.container}>
+      <header className={styles.header}>
+        <div className={styles.logo}>
+          <h1>Okippa</h1>
         </div>
+        <div className={styles.authLinks}>
+          <Link href="/auth/login" className={styles.authButton}>
+            ログイン
+          </Link>
+          <Link href="/auth/signup" className={styles.authButton}>
+            新規登録
+          </Link>
+        </div>
+      </header>
+
+      <main className={styles.main}>
+        <div className={styles.hero}>
+          <h2>必要な時に、必要なだけのスペースを</h2>
+          <p>Okippaで簡単にスペースを探して予約できます</p>
+        </div>
+
+        <section className={styles.spacesSection}>
+          <h2 className={styles.sectionTitle}>利用可能なスペース</h2>
+          
+          <div className={styles.spaceGrid}>
+            {spaces.map((space) => (
+              <Link 
+                href={`/spaces/${space.id}`} 
+                key={space.id} 
+                className={styles.spaceCard}
+              >
+                <div className={styles.spaceImageContainer}>
+                  {space.images ? (
+                    // Lorem Picsumを使用して画像を表示
+                    <Image 
+                      src={`https://picsum.photos/seed/${space.id}_${space.images.split(',')[0]}/300/200`}
+                      alt={space.title}
+                      width={300}
+                      height={200}
+                      className={styles.spaceImage}
+                      style={{ objectFit: "cover" }}
+                    />
+                  ) : (
+                    <div className={styles.noImage}>
+                      {space.title.charAt(0).toUpperCase()}
+                    </div>
+                  )}
+                </div>
+                <div className={styles.spaceInfo}>
+                  <h3 className={styles.spaceTitle}>{space.title}</h3>
+                  <p className={styles.spaceAddress}>{space.address}</p>
+                  <div className={styles.spaceDetails}>
+                    <span>{space.size_sqm} m²</span>
+                    <span className={styles.spacePrice}>¥{space.price_per_day.toLocaleString()}/日</span>
+                  </div>
+                  <div className={styles.spaceOwner}>オーナー: {space.owner_name}</div>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </section>
       </main>
+
       <footer className={styles.footer}>
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
+        <p>&copy; 2025 Okippa - レンタルスペースサービス</p>
       </footer>
     </div>
   );
