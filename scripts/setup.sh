@@ -45,16 +45,6 @@ else
   success "Homebrewは既にインストールされています"
 fi
 
-# Gitのチェックとインストール
-start_step "Gitをチェック中"
-if ! check_command git; then
-  warning "Gitがインストールされていません。インストールします..."
-  brew install git || error "Gitのインストールに失敗しました"
-  success "Gitのインストールが完了しました"
-else
-  success "Gitは既にインストールされています"
-fi
-
 # Node.jsのチェックとインストール
 start_step "Node.jsをチェック中"
 if ! check_command node; then
