@@ -4,7 +4,7 @@ import { closeDb } from '../lib/db';
 /**
  * データベースを初期化するメインスクリプト
  */
-function initializeDatabase() {
+async function initializeDatabase() {
   try {
     console.log('データベースの初期化を開始します...');
     
@@ -13,7 +13,7 @@ function initializeDatabase() {
     
     // 開発環境の場合はシードデータを挿入
     if (process.env.NODE_ENV === 'development') {
-      seedDatabase();
+      await seedDatabase();
     }
     
     console.log('データベースの初期化が完了しました');
@@ -26,4 +26,8 @@ function initializeDatabase() {
 }
 
 // スクリプト実行
-initializeDatabase();
+initializeDatabase()
+  .catch(error => {
+    console.error('予期せぬエラーが発生しました:', error);
+    process.exit(1);
+  });

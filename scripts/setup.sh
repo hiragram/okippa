@@ -28,7 +28,47 @@ warning() {
   echo -e "${YELLOW}[WARNING]${NC} $1"
 }
 
+# 関数: コマンドが存在するかチェック
+check_command() {
+  command -v $1 >/dev/null 2>&1
+}
+
 echo -e "${BLUE}===== okippaプロジェクト初期セットアップ =====${NC}"
+
+# Homebrewのチェックとインストール
+start_step "Homebrewをチェック中"
+if ! check_command brew; then
+  warning "Homebrewがインストールされていません。インストールします..."
+  /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" || error "Homebrewのインストールに失敗しました"
+  success "Homebrewのインストールが完了しました"
+else
+  success "Homebrewは既にインストールされています"
+fi
+
+# Gitのチェックとインストール
+start_step "Gitをチェック中"
+if ! check_command git; then
+  warning "Gitがインストールされていません。インストールします..."
+  brew install git || error "Gitのインストールに失敗しました"
+  success "Gitのインストールが完了しました"
+else
+  success "Gitは既にインストールされています"
+fi
+
+# Node.jsのチェックとインストール
+start_step "Node.jsをチェック中"
+if ! check_command node; then
+  warning "Node.jsがインストールされていません。インストールします..."
+  brew install node || error "Node.jsのインストールに失敗しました"
+  success "Node.jsのインストールが完了しました"
+else
+  success "Node.jsは既にインストールされています"
+fi
+
+# npmのチェック
+if ! check_command npm; then
+  error "npmが見つかりません。Node.jsを再インストールしてください"
+fi
 
 # 必要なディレクトリの作成
 start_step "必要なディレクトリを作成中"
@@ -42,7 +82,7 @@ success "依存パッケージのインストールが完了しました"
 
 # データベースの初期化
 start_step "データベースを初期化中"
-npm run db:init || error "データベースの初期化に失敗しました"
+NODE_ENV=development npm run db:init || error "データベースの初期化に失敗しました"
 success "データベースの初期化が完了しました"
 
 # 完了メッセージ

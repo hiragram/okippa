@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getDb } from '../../../lib/db';
+import bcrypt from 'bcryptjs';
 
 /**
  * GET /api/users - すべてのユーザーを取得
@@ -36,12 +37,15 @@ export async function POST(request: NextRequest) {
 
     const db = getDb();
     
-    // パスワードは実際の環境では適切にハッシュ化が必要
+    // パスワードをハッシュ化
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+    
     const stmt = db.prepare(
       'INSERT INTO users (username, email, password_hash) VALUES (?, ?, ?)'
     );
     
-    const result = stmt.run(username, email, password);
+    const result = stmt.run(username, email, hashedPassword);
     
     return NextResponse.json(
       { id: result.lastInsertRowid, username, email },

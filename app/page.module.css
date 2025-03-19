@@ -178,6 +178,109 @@
   color: #666;
 }
 
+/* マイページスタイル */
+.pageTitle {
+  font-size: 2rem;
+  margin-bottom: 2rem;
+  color: #333;
+  text-align: center;
+}
+
+.userInfoSection,
+.reservationsSection {
+  margin-bottom: 3rem;
+}
+
+.userInfoCard {
+  background-color: white;
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+.userInfoItem {
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+}
+
+.userInfoLabel {
+  font-weight: 500;
+  min-width: 150px;
+  color: #555;
+}
+
+.userInfoValue {
+  color: #333;
+}
+
+.reservationsList {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+.reservationCard {
+  background-color: white;
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s;
+}
+
+.reservationCard:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+}
+
+.reservationTitle {
+  font-size: 1.2rem;
+  margin-top: 0;
+  margin-bottom: 1rem;
+  color: #0070f3;
+}
+
+.reservationDetails {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.reservationDetail {
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px solid #f0f0f0;
+  padding-bottom: 0.5rem;
+}
+
+.reservationLabel {
+  color: #666;
+  font-weight: 500;
+}
+
+.emptyMessage {
+  text-align: center;
+  padding: 2rem;
+  color: #666;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+}
+
+.loadingContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 400px;
+  width: 100%;
+}
+
+/* ヘッダーのユーザーメニュー */
+.userMenu {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 /* レスポンシブ対応 */
 @media (max-width: 768px) {
   .hero h2 {

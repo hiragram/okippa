@@ -1,4 +1,5 @@
 import { getDb } from './db';
+import bcrypt from 'bcryptjs';
 
 /**
  * データベースの初期セットアップを行います
@@ -93,8 +94,12 @@ export function setupDatabase(): void {
  * データベースを初期化して必要なシードデータを挿入します
  * 開発環境でのテスト用データなどを追加できます
  */
-export function seedDatabase(): void {
+export async function seedDatabase(): Promise<void> {
   const db = getDb();
+  
+  // 事前にハッシュ化されたパスワードを準備
+  const testPasswordHash = await bcrypt.hash('password123', 10);
+  const ownerPasswordHash = await bcrypt.hash('owner123', 10);
   
   // トランザクションを使用して実行
   db.transaction(() => {
@@ -109,35 +114,30 @@ export function seedDatabase(): void {
       {
         username: 'yamada_taro',
         email: 'yamada@example.com',
-        password: 'hashed_password_here',
         phone: '090-1234-5678',
         address: '東京都渋谷区'
       },
       {
         username: 'tanaka_hanako',
         email: 'tanaka@example.com',
-        password: 'hashed_password_here',
         phone: '080-8765-4321',
         address: '東京都新宿区'
       },
       {
         username: 'suzuki_ichiro',
         email: 'suzuki@example.com',
-        password: 'hashed_password_here',
         phone: '070-2345-6789',
         address: '東京都目黒区'
       },
       {
         username: 'sato_yuki',
         email: 'sato@example.com',
-        password: 'hashed_password_here',
         phone: '090-3456-7890',
         address: '神奈川県横浜市'
       },
       {
         username: 'takahashi_kenji',
         email: 'takahashi@example.com',
-        password: 'hashed_password_here',
         phone: '080-4567-8901',
         address: '埼玉県さいたま市'
       }
@@ -148,7 +148,7 @@ export function seedDatabase(): void {
       insertUser.run(
         user.username, 
         user.email, 
-        user.password,
+        testPasswordHash,
         user.phone,
         user.address
       );
@@ -165,7 +165,6 @@ export function seedDatabase(): void {
       {
         username: 'space_owner1',
         email: 'owner1@example.com',
-        password: 'hashed_password_here',
         phone: '090-1111-1111',
         address: '東京都千代田区',
         bank_info: 'みずほ銀行 東京支店 普通 1111111',
@@ -174,7 +173,6 @@ export function seedDatabase(): void {
       {
         username: 'space_owner2',
         email: 'owner2@example.com',
-        password: 'hashed_password_here',
         phone: '090-2222-2222',
         address: '東京都中央区',
         bank_info: '三菱UFJ銀行 銀座支店 普通 2222222',
@@ -183,7 +181,6 @@ export function seedDatabase(): void {
       {
         username: 'space_owner3',
         email: 'owner3@example.com',
-        password: 'hashed_password_here',
         phone: '090-3333-3333',
         address: '東京都港区',
         bank_info: '三井住友銀行 六本木支店 普通 3333333',
@@ -192,7 +189,6 @@ export function seedDatabase(): void {
       {
         username: 'space_owner4',
         email: 'owner4@example.com',
-        password: 'hashed_password_here',
         phone: '090-4444-4444',
         address: '東京都新宿区',
         bank_info: 'りそな銀行 新宿支店 普通 4444444',
@@ -201,7 +197,6 @@ export function seedDatabase(): void {
       {
         username: 'space_owner5',
         email: 'owner5@example.com',
-        password: 'hashed_password_here',
         phone: '090-5555-5555',
         address: '東京都渋谷区',
         bank_info: 'ゆうちょ銀行 普通 5555555',
@@ -210,7 +205,6 @@ export function seedDatabase(): void {
       {
         username: 'space_owner6',
         email: 'owner6@example.com',
-        password: 'hashed_password_here',
         phone: '090-6666-6666',
         address: '神奈川県横浜市',
         bank_info: '横浜銀行 横浜駅前支店 普通 6666666',
@@ -219,7 +213,6 @@ export function seedDatabase(): void {
       {
         username: 'space_owner7',
         email: 'owner7@example.com',
-        password: 'hashed_password_here',
         phone: '090-7777-7777',
         address: '神奈川県川崎市',
         bank_info: '川崎信用金庫 川崎支店 普通 7777777',
@@ -228,7 +221,6 @@ export function seedDatabase(): void {
       {
         username: 'space_owner8',
         email: 'owner8@example.com',
-        password: 'hashed_password_here',
         phone: '090-8888-8888',
         address: '埼玉県さいたま市',
         bank_info: '埼玉りそな銀行 大宮支店 普通 8888888',
@@ -237,7 +229,6 @@ export function seedDatabase(): void {
       {
         username: 'space_owner9',
         email: 'owner9@example.com',
-        password: 'hashed_password_here',
         phone: '090-9999-9999',
         address: '千葉県千葉市',
         bank_info: '千葉銀行 千葉支店 普通 9999999',
@@ -246,7 +237,6 @@ export function seedDatabase(): void {
       {
         username: 'space_owner10',
         email: 'owner10@example.com',
-        password: 'hashed_password_here',
         phone: '090-0000-0000',
         address: '茨城県つくば市',
         bank_info: '常陽銀行 つくば支店 普通 0000000',
@@ -259,7 +249,7 @@ export function seedDatabase(): void {
       insertOwner.run(
         owner.username,
         owner.email,
-        owner.password,
+        ownerPasswordHash,
         owner.phone,
         owner.address,
         owner.bank_info,

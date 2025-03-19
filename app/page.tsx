@@ -2,6 +2,7 @@ import { getDb } from "@/lib/db";
 import Link from "next/link";
 import styles from "./page.module.css";
 import Image from "next/image";
+import Header from "@/components/Header";
 
 // スペースの型定義
 interface Space {
@@ -38,19 +39,7 @@ export default async function Home() {
 
   return (
     <div className={styles.container}>
-      <header className={styles.header}>
-        <div className={styles.logo}>
-          <h1>Okippa</h1>
-        </div>
-        <div className={styles.authLinks}>
-          <Link href="/auth/login" className={styles.authButton}>
-            ログイン
-          </Link>
-          <Link href="/auth/signup" className={styles.authButton}>
-            新規登録
-          </Link>
-        </div>
-      </header>
+      <Header />
 
       <main className={styles.main}>
         <div className={styles.hero}>

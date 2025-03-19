@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getDb } from '../../../../lib/db';
+import { cookies } from 'next/headers';
+import bcrypt from 'bcryptjs';
 
 // ユーザー型の定義
 interface User {
@@ -26,11 +28,10 @@ export async function POST(request: NextRequest) {
 
     const db = getDb();
     
-    // ユーザーの検索
-    // 注意: 実際の環境ではパスワードのハッシュ比較が必要です
+    // メールアドレスでユーザーを検索
     const user = db.prepare(
-      'SELECT id, username, email FROM users WHERE email = ? AND password_hash = ?'
-    ).get(email, password) as User | undefined;
+      'SELECT id, username, email, password_hash FROM users WHERE email = ?'
+    ).get(email) as User | undefined;
     
     if (!user) {
       return NextResponse.json(
@@ -39,8 +40,29 @@ export async function POST(request: NextRequest) {
       );
     }
     
-    // 認証成功
-    return NextResponse.json(
+    // パスワードを検証
+    const isValidPassword = await bcrypt.compare(password, user.password_hash);
+    
+    if (!isValidPassword) {
+      return NextResponse.json(
+        { error: 'メールアドレスまたはパスワードが正しくありません' },
+        { status: 401 }
+      );
+    }
+    
+    // セッションを作成
+    const sessionData = JSON.stringify({
+      userId: user.id,
+      username: user.username,
+      email: user.email,
+      expires: Date.now() + 24 * 60 * 60 * 1000 // 24時間
+    });
+
+    // Base64エンコード
+    const encodedSession = Buffer.from(sessionData).toString('base64');
+    
+    // レスポンスオブジェクトを作成
+    const response = NextResponse.json(
       { 
         message: 'ログインに成功しました',
         user: {
@@ -51,6 +73,18 @@ export async function POST(request: NextRequest) {
       },
       { status: 200 }
     );
+    
+    // Cookieを設定
+    response.cookies.set({
+      name: 'okippa_session',
+      value: encodedSession,
+      httpOnly: true,
+      path: '/',
+      maxAge: 24 * 60 * 60, // 24時間（秒単位）
+      sameSite: 'lax'
+    });
+    
+    return response;
   } catch (error) {
     console.error('ログインエラー:', error);
     return NextResponse.json(

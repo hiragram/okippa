@@ -4,9 +4,11 @@ import { useState, FormEvent } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import styles from '../auth.module.css';
+import { useAuth } from '@/components/AuthProvider';
 
 export default function SignupPage() {
   const router = useRouter();
+  const { login } = useAuth();
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -48,12 +50,40 @@ export default function SignupPage() {
         throw new Error(data.error || 'アカウント作成に失敗しました');
       }
 
-      setSuccess('アカウントが作成されました！ログインページに移動します...');
+      setSuccess('アカウントが作成されました！トップページに移動します...');
       
-      // 成功メッセージを表示した後にログインページにリダイレクト
-      setTimeout(() => {
-        router.push('/auth/login');
-      }, 2000);
+      // ユーザー情報を取得してログイン処理
+      try {
+        const loginResponse = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ email, password }),
+        });
+        
+        if (loginResponse.ok) {
+          const loginData = await loginResponse.json();
+          // ログイン処理を実行
+          login(loginData.user);
+          
+          // 成功メッセージを表示した後にトップページにリダイレクト
+          setTimeout(() => {
+            router.push('/');
+          }, 2000);
+        } else {
+          // ログインに失敗した場合でもとりあえずトップページに遷移
+          setTimeout(() => {
+            router.push('/');
+          }, 2000);
+        }
+      } catch (loginError) {
+        console.error('自動ログインエラー:', loginError);
+        // エラーが発生した場合でもとりあえずトップページに遷移
+        setTimeout(() => {
+          router.push('/');
+        }, 2000);
+      }
     } catch (error) {
       setError(error instanceof Error ? error.message : '予期せぬエラーが発生しました');
     } finally {

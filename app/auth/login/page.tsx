@@ -4,9 +4,11 @@ import { useState, FormEvent } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import styles from '../auth.module.css';
+import { useAuth } from '@/components/AuthProvider';
 
 export default function LoginPage() {
   const router = useRouter();
+  const { login } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -38,6 +40,9 @@ export default function LoginPage() {
       if (!response.ok) {
         throw new Error(data.error || 'ログインに失敗しました');
       }
+
+      // クライアント側でもユーザー情報を保存
+      login(data.user);
 
       // ログイン成功後はホームページにリダイレクト
       router.push('/');
